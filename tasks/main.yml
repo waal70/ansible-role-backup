@@ -9,12 +9,12 @@
 
 - name: Ensure password file for rsync user exists.
   ansible.builtin.copy:
-    content: "{{ rsync_user_password }}"
-    dest: "{{ rsync_user_passfile }}"
+    content: "{{ backup_rsync_user_password }}"
+    dest: "{{ backup_rsync_user_passfile }}"
     owner: "{{ backup_user }}"
     group: "{{ backup_user }}"
-    mode: 0600
-  when: rsync_user_password is defined
+    mode: "0600"
+  when: backup_rsync_user_password is defined
 
 - name: Ensure backup folder exists.
   ansible.builtin.file:
@@ -22,7 +22,7 @@
     state: directory
     owner: "{{ backup_user }}"
     group: "{{ backup_user }}"
-    mode: 0775
+    mode: "0775"
 
 - name: Copy backup script to server.
   ansible.builtin.template:
@@ -30,7 +30,7 @@
     dest: "{{ backup_path }}/backup.sh"
     owner: "{{ backup_user }}"
     group: "{{ backup_user }}"
-    mode: 0744
+    mode: "0744"
 
 - name: Copy excludes file to server.
   ansible.builtin.template:
@@ -38,7 +38,7 @@
     dest: "{{ backup_path }}/backup-exclude.txt"
     owner: "{{ backup_user }}"
     group: "{{ backup_user }}"
-    mode: 0644
+    mode: "0644"
 
 - name: Configure backup cron job.
   ansible.builtin.cron:
@@ -50,14 +50,20 @@
     job: "{{ backup_path }}/backup.sh"
     state: "{{ backup_cron_job_state }}"
 
-- name: Add backup remote host key to server.
-  ansible.builtin.known_hosts:
-    path: "/etc/ssh/ssh_known_hosts"
-    name: "{{ backup_remote_host_name }}"
-    key: "{{ backup_remote_host_name }} {{ backup_remote_host_key }}"
-  when:
-    - backup_remote_host_name
-    - backup_remote_host_key
+# In your include, please provide target and target_port
+#   ansible.builtin.include_role:
+#     name: waal70.ssh_host_key
+#   vars:
+#     target_host: 127.0.0.1
+#     target_host_port: 22
+#     known_hosts_user: root
+- name: Add backup remote host key to server/user
+  ansible.builtin.include_role:
+    name: waal70.ssh_host_key
+  vars:
+    target_host: "{{ backup_remote_host }}"
+    target_host_port: "{{ backup_remote_host_port | default(22) }}"
+    known_hosts_user: "{{ backup_user }}"
 
 - name: Include database backup tasks.
   ansible.builtin.include_tasks: databases.yml

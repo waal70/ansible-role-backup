@@ -7,7 +7,6 @@ backup_dow: "*"
 
 # User under which backup jobs will run.
 backup_user: "{{ ansible_env.SUDO_USER | default(ansible_env.USER, true) | default(ansible_user_id, true) }}"
-
 # Path to where backups configuration will be stored.
 backup_path: /home/{{ backup_user }}/backups
 
@@ -24,17 +23,15 @@ backup_exclude_items:
   - tmp
 
 # Options to control where the backup is delivered.
-backup_identifier: id_here
-backup_remote_connection: user@backup.example.com
+# This ensures the backup is stored in a folder unique to this server and month.
+backup_identifier: "{{ inventory_hostname | replace('.', '') }}-{{ '%Y%m' | strftime() }}"
+backup_rsync_user: user
+backup_rsync_user_passfile: /home/{{ backup_user }}/.rsync_pass
+backup_rsync_user_password: 'change_this_password'
+backup_remote_host: backup.example.com
+backup_remote_host_port: 22
+backup_remote_connection: "{{ backup_rsync_user }}@{{ backup_remote_host }}"
 backup_remote_base_path: "~/backups"
-backup_remote_connection_ssh_options: ''
-rsync_user_passfile: /home/{{ backup_user }}/.rsync_pass
-rsync_user_password: 'change_this_password'
-
-# Add your server's host key to ensure seamless backup functionality.
-backup_remote_host_name: ''
-backup_remote_host_port: ''
-backup_remote_host_key: ''
 
 # MySQL database backup options.
 backup_mysql: false

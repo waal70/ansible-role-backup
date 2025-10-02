@@ -5,7 +5,7 @@
     state: directory
     owner: "{{ backup_user }}"
     group: "{{ backup_user }}"
-    mode: 0775
+    mode: "0775"
 
 - name: Create MySQL user for DB Dumps.
   community.mysql.mysql_user:
