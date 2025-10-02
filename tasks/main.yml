@@ -1,4 +1,10 @@
 ---
+# tasks file for waal70.backup
+
+- name: Include vaulted password file
+  ansible.builtin.include_vars:
+    file: ../home/ansible-vault/backup-vars.yml
+
 - name: Ensure required packages are installed.
   ansible.builtin.apt:
     name:
