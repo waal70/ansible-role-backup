@@ -1,6 +1,23 @@
 ---
+- name: Ensure required packages are installed.
+  ansible.builtin.apt:
+    name:
+      - rsync
+      - cron
+      - sshpass
+    state: present
+
+- name: Ensure password file for rsync user exists.
+  ansible.builtin.copy:
+    content: "{{ rsync_user_password }}"
+    dest: "{{ rsync_user_passfile }}"
+    owner: "{{ backup_user }}"
+    group: "{{ backup_user }}"
+    mode: 0600
+  when: rsync_user_password is defined
+
 - name: Ensure backup folder exists.
-  file:
+  ansible.builtin.file:
     path: "{{ backup_path }}"
     state: directory
     owner: "{{ backup_user }}"
@@ -8,7 +25,7 @@
     mode: 0775
 
 - name: Copy backup script to server.
-  template:
+  ansible.builtin.template:
     src: backup.sh.j2
     dest: "{{ backup_path }}/backup.sh"
     owner: "{{ backup_user }}"
@@ -16,7 +33,7 @@
     mode: 0744
 
 - name: Copy excludes file to server.
-  template:
+  ansible.builtin.template:
     src: backup-exclude.txt.j2
     dest: "{{ backup_path }}/backup-exclude.txt"
     owner: "{{ backup_user }}"
@@ -24,8 +41,9 @@
     mode: 0644
 
 - name: Configure backup cron job.
-  cron:
+  ansible.builtin.cron:
     name: "Backup cron job"
+    weekday: "{{ backup_dow }}"
     minute: "{{ backup_minute }}"
     hour: "{{ backup_hour }}"
     user: "{{ backup_user }}"
@@ -33,7 +51,7 @@
     state: "{{ backup_cron_job_state }}"
 
 - name: Add backup remote host key to server.
-  known_hosts:
+  ansible.builtin.known_hosts:
     path: "/etc/ssh/ssh_known_hosts"
     name: "{{ backup_remote_host_name }}"
     key: "{{ backup_remote_host_name }} {{ backup_remote_host_key }}"
@@ -41,5 +59,6 @@
     - backup_remote_host_name
     - backup_remote_host_key
 
-- include_tasks: databases.yml
-  when: backup_mysql
+- name: Include database backup tasks.
+  ansible.builtin.include_tasks: databases.yml
+  when: backup_mysql | bool

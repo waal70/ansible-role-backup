@@ -1,17 +1,20 @@
 # Ansible Role: Backup for Simple Servers
 
-[![CI](https://github.com/geerlingguy/ansible-role-backup/actions/workflows/ci.yml/badge.svg)](https://github.com/geerlingguy/ansible-role-backup/actions/workflows/ci.yml)
+Fork of geerlingguy.ansible-role-backup. Back up Linux servers with a simple Rsync-and-Cron-based solution.
+Adapted by waal70 to
 
-Back up Linux servers with a simple Rsync-and-Cron-based solution.
+- include weekday settings in cron
+- make it possible to login with a password-file to the target rsync server
+- commented out the MySQL backup, as it is not relevant for me
+
+This role is suited for a Synology DSM rsync target (running DSM7+)
 
 ## Requirements
 
 Requires the following to be installed:
 
-  - rsync
-  - cron
-
-MySQL or a MySQL-compatible database needs to be installed if you'd like to enable MySQL database backups.
+- rsync
+- cron
 
 It's also assumed you have a server running somewhere that can accept backup data via Rsync, and on this backup server, you need to install `rsync`, and configure accounts with SSH authentication that allows this role to deliver backups to a specific directory via SSH.
 
@@ -84,6 +87,7 @@ None.
         backup_identifier: "{{ inventory_hostname|replace('.', '') }}"
         backup_user: "backupuser"
         backup_remote_connection: user@backups.example.com
+        backup_dow: "0,5,6" # Sunday, Friday, Saturday
         backup_hour: "1"
         backup_minute: "15"
         backup_mysql: false
