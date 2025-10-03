@@ -23,8 +23,9 @@ backup_exclude_items:
   - tmp
 
 # Options to control where the backup is delivered.
-# This ensures the backup is stored in a folder unique to this server and month.
-backup_identifier: "{{ inventory_hostname | replace('.', '') }}-{{ '%Y%m' | strftime() }}"
+# This ensures the backup is stored in a folder unique to this server 
+# Andre 2025-09: does not make sense to add date-time, as this may run irregularly (REMOVE: -{{ '%Y%m' | strftime() }}).
+backup_identifier: "{{ inventory_hostname | replace('.', '') }}"
 backup_rsync_user: user
 backup_rsync_user_passfile: /home/{{ backup_user }}/.rsync_pass
 backup_rsync_user_password: 'change_this_password'
