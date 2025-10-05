@@ -78,6 +78,14 @@
     target_host: "{{ backup_remote_host }}"
     target_host_port: "{{ backup_remote_host_port | default(22) }}"
     known_hosts_user: "{{ backup_user }}"
+  
+- name: Add backup remote host key to server/user for root
+  ansible.builtin.include_role:
+    name: waal70.ssh_host_key
+  vars:
+    target_host: "{{ backup_remote_host }}"
+    target_host_port: "{{ backup_remote_host_port | default(22) }}"
+    known_hosts_user: root
 
 - name: Include database backup tasks.
   ansible.builtin.include_tasks: databases.yml

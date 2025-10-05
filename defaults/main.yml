@@ -2,7 +2,7 @@
 # Backup cron job options.
 backup_cron_job_state: present
 backup_hour: "23"
-backup_minute: "05"
+backup_minute: "40"
 backup_dow: "*"
 
 # User under which backup jobs will run.
