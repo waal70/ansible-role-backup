@@ -12,6 +12,9 @@
         - "{{ lookup('env', 'PRIVATE_REPO') | default('~') }}/ansible-vault/{{ ansible_role_name }}-vars.yml"
       skip: true
 
+- name: Skip this entire role if the host is in the test group
+  ansible.builtin.meta: end_role
+  when: "'test' in group_names"
 
 - name: Ensure required packages are installed.
   ansible.builtin.apt:
